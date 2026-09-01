@@ -152,7 +152,8 @@ struct WeekScheduleView: View {
                 }
                 .font(.caption2.bold())
                 .padding(6)
-                .frame(width: dayWidth - 10, minHeight: 38, alignment: .leading)
+                .frame(width: dayWidth - 10, alignment: .leading)
+                .frame(minHeight: 38, alignment: .leading)
                 .background(.blue.opacity(0.16), in: RoundedRectangle(cornerRadius: 9))
                 .overlay {
                     RoundedRectangle(cornerRadius: 9).stroke(.blue.opacity(0.55))

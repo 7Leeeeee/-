@@ -1,0 +1,6 @@
+.DS_Store
+build/
+DerivedData/
+MyTimetable.xcodeproj/
+*.xcuserstate
+xcuserdata/

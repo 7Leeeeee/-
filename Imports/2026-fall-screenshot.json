@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-02T00:00:00Z",
+  "source": "用户课表截图 2026-09-02",
+  "schedule": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "name": "2026–2027 秋季学期",
+    "startDate": "2026-09-13T16:00:00Z",
+    "totalWeeks": 18,
+    "periods": [
+      { "index": 1, "start": "08:00", "end": "08:45" },
+      { "index": 2, "start": "08:50", "end": "09:35" },
+      { "index": 3, "start": "09:50", "end": "10:35" },
+      { "index": 4, "start": "10:40", "end": "11:25" },
+      { "index": 5, "start": "11:30", "end": "12:15" },
+      { "index": 6, "start": "13:00", "end": "13:45" },
+      { "index": 7, "start": "13:50", "end": "14:35" },
+      { "index": 8, "start": "14:50", "end": "15:35" },
+      { "index": 9, "start": "15:40", "end": "16:25" },
+      { "index": 10, "start": "16:30", "end": "17:15" },
+      { "index": 11, "start": "18:00", "end": "18:45" },
+      { "index": 12, "start": "18:50", "end": "19:35" },
+      { "index": 13, "start": "19:40", "end": "20:25" },
+      { "index": 14, "start": "20:30", "end": "21:15" }
+    ],
+    "courses": [
+      { "id": "00000000-0000-0000-0000-000000000101", "title": "生物化学", "courseCode": "BIOL2108.01", "weekday": 1, "startPeriod": 3, "endPeriod": 4, "weeks": [1,2,3,4,5,6,7,8], "campus": "闵行校区", "room": "闵四教202", "teacher": "孙运彦", "colorHex": "#14B8A6", "note": "" },
+      { "id": "00000000-0000-0000-0000-000000000102", "title": "生物化学", "courseCode": "BIOL2108.01", "weekday": 1, "startPeriod": 3, "endPeriod": 4, "weeks": [9,10,11,12,13,14,15,16], "campus": "闵行校区", "room": "闵四教202", "teacher": "阳怀宇", "colorHex": "#14B8A6", "note": "" },
+      { "id": "00000000-0000-0000-0000-000000000103", "title": "神话、信仰与社会传奇—宗教的社会人类学解释", "courseCode": "SOCI2730.01", "weekday": 1, "startPeriod": 11, "endPeriod": 13, "weeks": [1,2,3,4,5,6,7,8,9,10,11,12], "campus": "闵行校区", "room": "闵二教104", "teacher": "陈赟", "colorHex": "#C08457", "note": "" },
+      { "id": "00000000-0000-0000-0000-000000000104", "title": "生物统计学", "courseCode": "BIOL2128.01", "weekday": 3, "startPeriod": 3, "endPeriod": 5, "weeks": [1,2,3,4,5,6,7,8,9,10,11], "campus": "闵行校区", "room": "闵二教104", "teacher": "陈迎", "colorHex": "#3B82F6", "note": "" },
+      { "id": "00000000-0000-0000-0000-000000000105", "title": "生物统计学", "courseCode": "BIOL2128.01", "weekday": 3, "startPeriod": 3, "endPeriod": 5, "weeks": [12,13,14,15,16], "campus": "闵行校区", "room": "闵二教104", "teacher": "赵磊", "colorHex": "#3B82F6", "note": "" },
+      { "id": "00000000-0000-0000-0000-000000000106", "title": "生物化学", "courseCode": "BIOL2108.01", "weekday": 4, "startPeriod": 1, "endPeriod": 2, "weeks": [1,2,3,4,5,6,7,8], "campus": "闵行校区", "room": "闵四教202", "teacher": "孙运彦", "colorHex": "#14B8A6", "note": "" },
+      { "id": "00000000-0000-0000-0000-000000000107", "title": "生物化学", "courseCode": "BIOL2108.01", "weekday": 4, "startPeriod": 1, "endPeriod": 2, "weeks": [9,10,11,12,13,14,15,16], "campus": "闵行校区", "room": "闵四教202", "teacher": "阳怀宇", "colorHex": "#14B8A6", "note": "" },
+      { "id": "00000000-0000-0000-0000-000000000108", "title": "大学物理B（一）", "courseCode": "PHYS2652.03", "weekday": 4, "startPeriod": 3, "endPeriod": 5, "weeks": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], "campus": "闵行校区", "room": "闵四教229", "teacher": "潘丽坤", "colorHex": "#64748B", "note": "" },
+      { "id": "00000000-0000-0000-0000-000000000109", "title": "马克思主义基本原理", "courseCode": "MARX1003.31", "weekday": 4, "startPeriod": 11, "endPeriod": 13, "weeks": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], "campus": "闵行校区", "room": "闵一教109", "teacher": "王馨曼", "colorHex": "#A855F7", "note": "" },
+      { "id": "00000000-0000-0000-0000-000000000110", "title": "体育与健康--网球（初）", "courseCode": "SPOR1024.06", "weekday": 5, "startPeriod": 3, "endPeriod": 4, "weeks": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], "campus": "闵行校区", "room": "闵东网球场1", "teacher": "陈赢", "colorHex": "#F97316", "note": "" },
+      { "id": "00000000-0000-0000-0000-000000000111", "title": "生物化学实验", "courseCode": "BIOL2110.02 #4", "weekday": 5, "startPeriod": 6, "endPeriod": 9, "weeks": [2,3,4,5,6,7,8,9,10,11,12,13,14,15], "campus": "闵行校区", "room": "闵实验B楼324", "teacher": "何云东", "colorHex": "#65A30D", "note": "" }
+    ]
+  }
+}

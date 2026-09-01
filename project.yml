@@ -1,0 +1,89 @@
+name: MyTimetable
+options:
+  minimumXcodeGenVersion: 2.41.0
+  deploymentTarget:
+    iOS: "18.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    IPHONEOS_DEPLOYMENT_TARGET: "18.0"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 1.0.0
+    GENERATE_INFOPLIST_FILE: NO
+targets:
+  MyTimetable:
+    type: application
+    platform: iOS
+    sources:
+      - path: Shared
+      - path: App
+    resources:
+      - path: Resources
+    info:
+      path: Config/App-Info.plist
+      properties:
+        CFBundleDisplayName: 我的课表
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        NSSupportsLiveActivities: true
+        NSUserNotificationsUsageDescription: 用于在作业截止、考试和备忘时间到达前提醒你。
+        CFBundleURLTypes:
+          - CFBundleURLName: com.personal.mytimetable
+            CFBundleURLSchemes:
+              - mytimetable
+    entitlements:
+      path: Config/App.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.personal.mytimetable
+    dependencies:
+      - target: MyTimetableWidgets
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.personal.mytimetable
+        PRODUCT_NAME: MyTimetable
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  MyTimetableWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Shared
+      - path: Widgets
+    resources:
+      - path: Resources/Assets.xcassets
+    info:
+      path: Config/Widget-Info.plist
+      properties:
+        CFBundleDisplayName: 我的课表小组件
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Config/Widget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.personal.mytimetable
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.personal.mytimetable.widgets
+        PRODUCT_NAME: MyTimetableWidgets
+        SKIP_INSTALL: YES
+schemes:
+  MyTimetable:
+    build:
+      targets:
+        MyTimetable: all
+        MyTimetableWidgets: all
+    run:
+      config: Debug
+    archive:
+      config: Release

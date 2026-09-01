@@ -1,0 +1,49 @@
+name: Build unsigned IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Apple toolchain versions
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build without signing
+        run: |
+          xcodebuild \
+            -project MyTimetable.xcodeproj \
+            -scheme MyTimetable \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            clean build
+
+      - name: Package IPA for AltStore
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/MyTimetable.app Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload MyTimetable-unsigned.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyTimetable-unsigned-ipa
+          path: MyTimetable-unsigned.ipa
+          if-no-files-found: error

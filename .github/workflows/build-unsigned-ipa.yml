@@ -35,15 +35,37 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             clean build
 
-      - name: Package IPA for AltStore
+      - name: Package sideload-ready IPA variants
         run: |
+          APP_PATH="build/Build/Products/Release-iphoneos/MyTimetable.app"
+
           mkdir -p Payload
-          cp -R build/Build/Products/Release-iphoneos/MyTimetable.app Payload/
-          ditto -c -k --sequesterRsrc --keepParent Payload MyTimetable-unsigned.ipa
+          cp -R "$APP_PATH" Payload/
+          codesign --force --sign - --timestamp=none \
+            --entitlements Config/Widget.entitlements \
+            Payload/MyTimetable.app/PlugIns/MyTimetableWidgets.appex
+          codesign --force --sign - --timestamp=none \
+            --entitlements Config/App.entitlements \
+            Payload/MyTimetable.app
+          codesign --verify --deep --strict --verbose=2 Payload/MyTimetable.app
+          ditto -c -k --sequesterRsrc --keepParent Payload MyTimetable-resign-ready.ipa
+
+          rm -rf Payload
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          rm -rf Payload/MyTimetable.app/PlugIns
+          /usr/libexec/PlistBuddy -c "Delete :NSSupportsLiveActivities" \
+            Payload/MyTimetable.app/Info.plist || true
+          codesign --force --sign - --timestamp=none Payload/MyTimetable.app
+          codesign --verify --strict --verbose=2 Payload/MyTimetable.app
+          ditto -c -k --sequesterRsrc --keepParent Payload MyTimetable-basic-free-signing.ipa
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MyTimetable-unsigned-ipa
-          path: MyTimetable-unsigned.ipa
+          name: MyTimetable-sideload-ready
+          path: |
+            MyTimetable-resign-ready.ipa
+            MyTimetable-basic-free-signing.ipa
           if-no-files-found: error
+

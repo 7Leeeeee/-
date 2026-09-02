@@ -27,6 +27,7 @@ struct RootView: View {
             .tabItem { Label("设置", systemImage: "gearshape.fill") }
         }
         .tint(AppTheme.accent)
+        .environment(\.locale, Locale(identifier: "zh_CN"))
         .sheet(isPresented: $showingTaskEditor) {
             TaskEditorView()
                 .environmentObject(store)
@@ -41,7 +42,7 @@ struct RootView: View {
 
 extension Date {
     var shortDateTime: String {
-        formatted(date: .abbreviated, time: .shortened)
+        ChineseDateText.dateTime(self)
     }
 }
 

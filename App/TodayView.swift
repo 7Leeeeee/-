@@ -4,6 +4,7 @@ struct TodayView: View {
     @EnvironmentObject private var store: AppStore
     @Binding var showingTaskEditor: Bool
     @State private var liveActivityMessage: String?
+    @State private var selectedTask: StudyTask?
 
     private var courses: [CourseSession] {
         ScheduleEngine.sessions(on: Date(), schedule: store.schedule)
@@ -53,7 +54,11 @@ struct TodayView: View {
                     }
                 } else {
                     ForEach(todayTasks) { task in
-                        TaskRow(task: task)
+                        TaskRow(
+                            task: task,
+                            onToggle: { toggle(task) },
+                            onEdit: { selectedTask = task }
+                        )
                     }
                 }
             } header: {
@@ -90,12 +95,16 @@ struct TodayView: View {
         } message: {
             Text(liveActivityMessage ?? "")
         }
+        .sheet(item: $selectedTask) { task in
+            TaskEditorView(existingTask: task)
+                .environmentObject(store)
+        }
     }
 
     private var header: some View {
         HStack(spacing: 18) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(Date.now.formatted(.dateTime.month().day().weekday(.wide)))
+                Text(ChineseDateText.monthDayWeekday(Date.now))
                     .font(.title2.weight(.bold))
                 if let week = ScheduleEngine.teachingWeek(on: Date(), schedule: store.schedule) {
                     Text("\(store.schedule.name) · 第 \(week) 周")
@@ -107,9 +116,9 @@ struct TodayView: View {
             }
             Spacer(minLength: 8)
             VStack(spacing: 0) {
-                Text(Date.now.formatted(.dateTime.day()))
+                Text(ChineseDateText.day(Date.now))
                     .font(.title2.weight(.bold))
-                Text(Date.now.formatted(.dateTime.month(.abbreviated)).uppercased())
+                Text(ChineseDateText.month(Date.now))
                     .font(.caption2.monospaced().weight(.semibold))
             }
             .foregroundStyle(AppTheme.accent)
@@ -127,6 +136,19 @@ struct TodayView: View {
             Text(title).font(.headline)
             Spacer()
             Text("\(count)").font(.caption.bold()).foregroundStyle(.secondary)
+        }
+    }
+
+    private func toggle(_ task: StudyTask) {
+        store.toggleTask(task)
+        Task {
+            if task.isCompleted {
+                var pending = task
+                pending.isCompleted = false
+                await TaskNotificationManager.shared.schedule(pending)
+            } else {
+                await TaskNotificationManager.shared.cancel(taskID: task.id)
+            }
         }
     }
 }
@@ -156,30 +178,61 @@ struct CourseListCard: View {
 }
 
 struct TaskRow: View {
-    @EnvironmentObject private var store: AppStore
     let task: StudyTask
+    let onToggle: () -> Void
+    let onEdit: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
-            Button {
-                store.toggleTask(task)
-                Task { await TaskNotificationManager.shared.cancel(taskID: task.id) }
-            } label: {
+            Button(action: onToggle) {
                 Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
                     .font(.title3)
+                    .frame(width: 44, height: 44)
             }
-            VStack(alignment: .leading, spacing: 3) {
-                Text(task.title)
-                    .font(.body.weight(.semibold))
-                    .strikethrough(task.isCompleted)
-                if let date = task.dueDate ?? task.scheduledStart {
-                    Text(date.shortDateTime).font(.caption).foregroundStyle(.secondary)
+            .buttonStyle(.plain)
+            .accessibilityLabel(task.isCompleted ? "标记为未完成" : "标记为已完成")
+
+            Button(action: onEdit) {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Label(task.kind.title, systemImage: task.kind.symbol)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        if let courseCode = task.courseCode, !courseCode.isEmpty {
+                            Text(courseCode)
+                                .font(.caption2.monospaced())
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    Text(task.title)
+                        .font(.body.weight(.semibold))
+                        .strikethrough(task.isCompleted)
+                        .foregroundStyle(.primary)
+                    if let date = task.dueDate ?? task.scheduledStart {
+                        Text(date.shortDateTime)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    if !task.reminderDates.isEmpty {
+                        Label("\(task.reminderDates.count) 次提醒", systemImage: "bell")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+
             Spacer()
-            Image(systemName: task.kind.symbol).foregroundStyle(.secondary)
+            Button(action: onEdit) {
+                Image(systemName: "pencil")
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("编辑 \(task.title)")
         }
-        .padding(.vertical, 5)
+        .padding(.vertical, 4)
     }
 }
 

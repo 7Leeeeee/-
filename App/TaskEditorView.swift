@@ -14,7 +14,7 @@ struct TaskEditorView: View {
     @State private var hasDueDate = false
     @State private var dueDate = Date().addingTimeInterval(86400)
     @State private var hasReminder = true
-    @State private var reminderDate = Date().addingTimeInterval(1800)
+    @State private var reminderDates = [Date().addingTimeInterval(1800)]
     private let existingTask: StudyTask?
 
     init(existingTask: StudyTask? = nil) {
@@ -29,8 +29,12 @@ struct TaskEditorView: View {
         _scheduledEnd = State(initialValue: task.scheduledEnd ?? task.scheduledStart?.addingTimeInterval(3600) ?? Date().addingTimeInterval(3600))
         _hasDueDate = State(initialValue: task.dueDate != nil)
         _dueDate = State(initialValue: task.dueDate ?? Date().addingTimeInterval(86400))
-        _hasReminder = State(initialValue: task.reminderDate != nil)
-        _reminderDate = State(initialValue: task.reminderDate ?? Date().addingTimeInterval(1800))
+        _hasReminder = State(initialValue: !task.reminderDates.isEmpty)
+        _reminderDates = State(
+            initialValue: task.reminderDates.isEmpty
+                ? [Date().addingTimeInterval(1800)]
+                : task.reminderDates.sorted()
+        )
     }
 
     var body: some View {
@@ -63,7 +67,31 @@ struct TaskEditorView: View {
                     }
                     Toggle("弹窗提醒", isOn: $hasReminder)
                     if hasReminder {
-                        DatePicker("提醒时间", selection: $reminderDate)
+                        ForEach(Array(reminderDates.indices), id: \.self) { index in
+                            HStack(alignment: .center, spacing: 8) {
+                                DatePicker(
+                                    "第 \(index + 1) 次提醒",
+                                    selection: $reminderDates[index]
+                                )
+                                if reminderDates.count > 1 {
+                                    Button(role: .destructive) {
+                                        reminderDates.remove(at: index)
+                                    } label: {
+                                        Image(systemName: "minus.circle.fill")
+                                    }
+                                    .buttonStyle(.borderless)
+                                    .accessibilityLabel("删除第 \(index + 1) 次提醒")
+                                }
+                            }
+                        }
+
+                        Button {
+                            let base = reminderDates.last ?? Date()
+                            reminderDates.append(max(base.addingTimeInterval(1800), Date()))
+                        } label: {
+                            Label("添加提醒时间", systemImage: "plus.circle")
+                        }
+                        .disabled(reminderDates.count >= 8)
                     }
                 }
             }
@@ -93,7 +121,7 @@ struct TaskEditorView: View {
             scheduledStart: hasScheduledTime ? scheduledStart : nil,
             scheduledEnd: hasScheduledTime ? scheduledEnd : nil,
             dueDate: hasDueDate ? dueDate : nil,
-            reminderDate: hasReminder ? reminderDate : nil,
+            reminderDates: hasReminder ? reminderDates.sorted() : [],
             isCompleted: existingTask?.isCompleted ?? false,
             createdAt: existingTask?.createdAt ?? Date()
         )

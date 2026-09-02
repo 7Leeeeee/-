@@ -20,9 +20,27 @@ struct TasksView: View {
                     )
                 }
                 ForEach(store.pendingTasks) { task in
-                    TaskRow(task: task)
-                        .contentShape(Rectangle())
-                        .onTapGesture { selectedTask = task }
+                    TaskRow(
+                        task: task,
+                        onToggle: { toggle(task) },
+                        onEdit: { selectedTask = task }
+                    )
+                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                        Button {
+                            toggle(task)
+                        } label: {
+                            Label("完成", systemImage: "checkmark")
+                        }
+                        .tint(.green)
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button {
+                            selectedTask = task
+                        } label: {
+                            Label("编辑", systemImage: "pencil")
+                        }
+                        .tint(AppTheme.accent)
+                    }
                 }
                 .onDelete { offsets in
                     let removed = offsets.map { store.pendingTasks[$0] }
@@ -38,9 +56,19 @@ struct TasksView: View {
             if !completed.isEmpty {
                 Section("已完成") {
                     ForEach(completed) { task in
-                        TaskRow(task: task)
-                            .contentShape(Rectangle())
-                            .onTapGesture { selectedTask = task }
+                        TaskRow(
+                            task: task,
+                            onToggle: { toggle(task) },
+                            onEdit: { selectedTask = task }
+                        )
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button {
+                                toggle(task)
+                            } label: {
+                                Label("恢复", systemImage: "arrow.uturn.backward")
+                            }
+                            .tint(.orange)
+                        }
                     }
                     .onDelete { store.deleteTasks(at: $0, from: completed) }
                 }
@@ -60,6 +88,19 @@ struct TasksView: View {
         .sheet(item: $selectedTask) { task in
             TaskEditorView(existingTask: task)
                 .environmentObject(store)
+        }
+    }
+
+    private func toggle(_ task: StudyTask) {
+        store.toggleTask(task)
+        Task {
+            if task.isCompleted {
+                var pending = task
+                pending.isCompleted = false
+                await TaskNotificationManager.shared.schedule(pending)
+            } else {
+                await TaskNotificationManager.shared.cancel(taskID: task.id)
+            }
         }
     }
 }

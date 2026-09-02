@@ -76,6 +76,21 @@ enum ScheduleEngine {
         return candidates.min { $0.1.start < $1.1.start }
     }
 
+    static func currentOrNextLessonToday(
+        at date: Date,
+        schedule: TermSchedule
+    ) -> (CourseSession, DateInterval)? {
+        sessions(on: date, schedule: schedule)
+            .compactMap { course -> (CourseSession, DateInterval)? in
+                guard let week = teachingWeek(on: date, schedule: schedule),
+                      let interval = dateInterval(for: course, week: week, schedule: schedule),
+                      interval.end > date
+                else { return nil }
+                return (course, interval)
+            }
+            .min { $0.1.start < $1.1.start }
+    }
+
     static func currentLesson(at date: Date, schedule: TermSchedule) -> (CourseSession, DateInterval)? {
         guard let week = teachingWeek(on: date, schedule: schedule) else { return nil }
         for course in sessions(on: date, schedule: schedule) {
@@ -91,6 +106,11 @@ enum ScheduleEngine {
         let start = schedule.periods.first(where: { $0.index == course.startPeriod })?.start ?? ""
         let end = schedule.periods.first(where: { $0.index == course.endPeriod })?.end ?? ""
         return "第\(course.startPeriod)–\(course.endPeriod)节 · \(start)–\(end)"
+    }
+
+    static func weekdayName(_ weekday: Int) -> String {
+        guard (1...7).contains(weekday) else { return "" }
+        return ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][weekday - 1]
     }
 
     private static func date(on day: Date, clock: String) -> Date? {
@@ -114,3 +134,43 @@ enum ScheduleEngine {
         return week <= schedule.totalWeeks + 2 ? max(1, week) : nil
     }
 }
+
+enum ChineseDateText {
+    static func monthDayWeekday(_ date: Date) -> String {
+        string(date, format: "M月d日 EEEE")
+    }
+
+    static func monthDay(_ date: Date) -> String {
+        string(date, format: "M月d日")
+    }
+
+    static func day(_ date: Date) -> String {
+        string(date, format: "d")
+    }
+
+    static func month(_ date: Date) -> String {
+        string(date, format: "M月")
+    }
+
+    static func weekdayTime(_ date: Date) -> String {
+        string(date, format: "EEEE HH:mm")
+    }
+
+    static func dateTime(_ date: Date) -> String {
+        string(date, format: "M月d日 EEEE HH:mm")
+    }
+
+    static func time(_ date: Date) -> String {
+        string(date, format: "HH:mm")
+    }
+
+    private static func string(_ date: Date, format: String) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_CN")
+        formatter.calendar = ScheduleEngine.calendar
+        formatter.timeZone = ScheduleEngine.calendar.timeZone
+        formatter.dateFormat = format
+        return formatter.string(from: date)
+    }
+}
+

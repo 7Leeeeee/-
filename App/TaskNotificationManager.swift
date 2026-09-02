@@ -19,29 +19,29 @@ final class TaskNotificationManager: NSObject, UNUserNotificationCenterDelegate,
 
     func schedule(_ task: StudyTask) async {
         await cancel(taskID: task.id)
-        guard !task.isCompleted,
-              let reminderDate = task.reminderDate,
-              reminderDate > Date()
-        else { return }
+        guard !task.isCompleted else { return }
 
-        let content = UNMutableNotificationContent()
-        content.title = task.kind == .exam ? "考试提醒" : "\(task.kind.title)提醒"
-        content.body = task.title
-        if !task.details.isEmpty { content.subtitle = task.details }
-        content.sound = .default
-        content.userInfo = ["taskID": task.id.uuidString]
+        for (index, reminderDate) in task.reminderDates.sorted().enumerated()
+            where reminderDate > Date() {
+            let content = UNMutableNotificationContent()
+            content.title = task.kind == .exam ? "考试提醒" : "\(task.kind.title)提醒"
+            content.body = task.title
+            if !task.details.isEmpty { content.subtitle = task.details }
+            content.sound = .default
+            content.userInfo = ["taskID": task.id.uuidString]
 
-        let components = ScheduleEngine.calendar.dateComponents(
-            [.year, .month, .day, .hour, .minute],
-            from: reminderDate
-        )
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-        let request = UNNotificationRequest(
-            identifier: notificationID(task.id),
-            content: content,
-            trigger: trigger
-        )
-        try? await center.add(request)
+            let components = ScheduleEngine.calendar.dateComponents(
+                [.year, .month, .day, .hour, .minute],
+                from: reminderDate
+            )
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: notificationID(task.id, index: index),
+                content: content,
+                trigger: trigger
+            )
+            try? await center.add(request)
+        }
     }
 
     func refresh(tasks: [StudyTask]) async {
@@ -51,7 +51,11 @@ final class TaskNotificationManager: NSObject, UNUserNotificationCenterDelegate,
     }
 
     func cancel(taskID: UUID) async {
-        center.removePendingNotificationRequests(withIdentifiers: [notificationID(taskID)])
+        let prefix = notificationPrefix(taskID)
+        let identifiers = await center.pendingNotificationRequests()
+            .map(\.identifier)
+            .filter { $0 == prefix || $0.hasPrefix("\(prefix)-") }
+        center.removePendingNotificationRequests(withIdentifiers: identifiers)
     }
 
     func userNotificationCenter(
@@ -61,7 +65,12 @@ final class TaskNotificationManager: NSObject, UNUserNotificationCenterDelegate,
         [.banner, .list, .sound]
     }
 
-    private func notificationID(_ id: UUID) -> String {
+    private func notificationPrefix(_ id: UUID) -> String {
         "my-timetable-task-\(id.uuidString)"
     }
+
+    private func notificationID(_ id: UUID, index: Int) -> String {
+        "\(notificationPrefix(id))-\(index)"
+    }
 }
+

@@ -23,6 +23,20 @@ final class AppStore: ObservableObject {
         persist()
     }
 
+    func upsertCourse(_ course: CourseSession) {
+        if let index = snapshot.schedule.courses.firstIndex(where: { $0.id == course.id }) {
+            snapshot.schedule.courses[index] = course
+        } else {
+            snapshot.schedule.courses.append(course)
+        }
+        persist()
+    }
+
+    func deleteCourse(id: UUID) {
+        snapshot.schedule.courses.removeAll { $0.id == id }
+        persist()
+    }
+
     func upsertTask(_ task: StudyTask) {
         if let index = snapshot.tasks.firstIndex(where: { $0.id == task.id }) {
             snapshot.tasks[index] = task
@@ -63,3 +77,4 @@ final class AppStore: ObservableObject {
         task.dueDate ?? task.scheduledStart ?? .distantFuture
     }
 }
+

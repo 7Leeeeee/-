@@ -24,7 +24,7 @@ struct WeekScheduleView: View {
                 }
             }
         }
-        .background(Color(uiColor: .systemGroupedBackground))
+        .background(AppTheme.background)
         .navigationTitle("课表")
         .toolbar {
             Button {
@@ -64,9 +64,10 @@ struct WeekScheduleView: View {
             }
             .disabled(selectedWeek == store.schedule.totalWeeks)
         }
-        .padding(.horizontal)
-        .padding(.vertical, 10)
-        .background(.bar)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color(uiColor: .systemBackground))
+        .overlay(alignment: .bottom) { Divider() }
     }
 
     private var dayHeader: some View {
@@ -90,7 +91,7 @@ struct WeekScheduleView: View {
                 .background(ScheduleEngine.calendar.isDateInToday(date) ? Color.accentColor.opacity(0.12) : .clear)
             }
         }
-        .background(.bar)
+        .background(Color(uiColor: .systemBackground))
     }
 
     private var periodColumn: some View {
@@ -125,23 +126,24 @@ struct WeekScheduleView: View {
             }
 
             ForEach(courses) { course in
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(course.title).font(.caption.bold()).lineLimit(2)
-                    Text(course.room).font(.caption2).lineLimit(1)
-                    Text(course.teacher).font(.caption2).lineLimit(1)
+                HStack(alignment: .top, spacing: 6) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color(hex: course.colorHex))
+                        .frame(width: 3)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(course.title).font(.caption.bold()).lineLimit(2)
+                        Text(course.room).font(.caption2).lineLimit(1)
+                        Text(course.teacher).font(.caption2).lineLimit(1)
+                    }
                 }
                 .foregroundStyle(Color(hex: course.colorHex).mix(with: .black, by: 0.42))
-                .padding(7)
+                .padding(6)
                 .frame(
                     width: dayWidth - 6,
                     height: CGFloat(course.endPeriod - course.startPeriod + 1) * rowHeight - 6,
                     alignment: .topLeading
                 )
-                .background(Color(hex: course.colorHex).opacity(0.2), in: RoundedRectangle(cornerRadius: 10))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color(hex: course.colorHex).opacity(0.55), lineWidth: 1)
-                }
+                .background(Color(hex: course.colorHex).opacity(0.16), in: RoundedRectangle(cornerRadius: AppTheme.courseCorner))
                 .offset(x: 3, y: CGFloat(course.startPeriod - 1) * rowHeight + 3)
             }
 
@@ -154,10 +156,7 @@ struct WeekScheduleView: View {
                 .padding(6)
                 .frame(width: dayWidth - 10, alignment: .leading)
                 .frame(minHeight: 38, alignment: .leading)
-                .background(.blue.opacity(0.16), in: RoundedRectangle(cornerRadius: 9))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 9).stroke(.blue.opacity(0.55))
-                }
+                .background(AppTheme.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: AppTheme.courseCorner))
                 .offset(x: 5, y: CGFloat(rowForTask(task)) * rowHeight + 10)
             }
         }
@@ -193,11 +192,9 @@ struct WeekScheduleView: View {
     }
 
     private func periodBackground(_ index: Int) -> Color {
-        switch index {
-        case 1...5: Color.teal.opacity(0.12)
-        case 6...10: Color.yellow.opacity(0.16)
-        default: Color.red.opacity(0.12)
-        }
+        index.isMultiple(of: 2)
+            ? Color(uiColor: .secondarySystemGroupedBackground)
+            : Color(uiColor: .systemGroupedBackground)
     }
 }
 
@@ -206,3 +203,4 @@ private extension Color {
         self.opacity(max(0.55, 1 - fraction))
     }
 }
+

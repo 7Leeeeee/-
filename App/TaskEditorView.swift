@@ -67,6 +67,8 @@ struct TaskEditorView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(AppTheme.background)
             .navigationTitle(existingTask == nil ? "新建待办" : "编辑待办")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -100,3 +102,4 @@ struct TaskEditorView: View {
         dismiss()
     }
 }
+

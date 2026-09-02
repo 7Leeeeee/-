@@ -51,6 +51,9 @@ struct SettingsView: View {
                 Text("截图导入前会先显示学期名称、课程数量和节次数量，只有确认后才替换当前课表。")
             }
         }
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .background(AppTheme.background)
         .navigationTitle("设置")
         .sheet(isPresented: $showingImport) {
             ImportScheduleView()
@@ -132,6 +135,8 @@ struct ImportScheduleView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(AppTheme.background)
             .navigationTitle("截图导入")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -152,3 +157,4 @@ struct ImportScheduleView: View {
         }
     }
 }
+

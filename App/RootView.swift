@@ -26,7 +26,7 @@ struct RootView: View {
             }
             .tabItem { Label("设置", systemImage: "gearshape.fill") }
         }
-        .tint(Color(hex: "#2779F5"))
+        .tint(AppTheme.accent)
         .sheet(isPresented: $showingTaskEditor) {
             TaskEditorView()
                 .environmentObject(store)
@@ -39,27 +39,9 @@ struct RootView: View {
     }
 }
 
-extension Color {
-    init(hex: String) {
-        let cleaned = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var value: UInt64 = 0
-        Scanner(string: cleaned).scanHexInt64(&value)
-        let red, green, blue: Double
-        if cleaned.count == 6 {
-            red = Double((value >> 16) & 0xFF) / 255
-            green = Double((value >> 8) & 0xFF) / 255
-            blue = Double(value & 0xFF) / 255
-        } else {
-            red = 0.15
-            green = 0.48
-            blue = 0.95
-        }
-        self.init(red: red, green: green, blue: blue)
-    }
-}
-
 extension Date {
     var shortDateTime: String {
         formatted(date: .abbreviated, time: .shortened)
     }
 }
+

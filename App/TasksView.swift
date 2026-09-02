@@ -46,6 +46,9 @@ struct TasksView: View {
                 }
             }
         }
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .background(AppTheme.background)
         .navigationTitle("待办与备忘")
         .toolbar {
             Button {
@@ -60,3 +63,4 @@ struct TasksView: View {
         }
     }
 }
+

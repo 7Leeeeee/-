@@ -18,10 +18,15 @@ struct TodayView: View {
     }
 
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 18) {
+        List {
+            Section {
                 header
+                    .listRowInsets(EdgeInsets(top: 8, leading: 18, bottom: 10, trailing: 18))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            }
 
+            Section {
                 if courses.isEmpty {
                     ContentUnavailableView(
                         "今天没有课",
@@ -29,32 +34,35 @@ struct TodayView: View {
                         description: Text("可以给自己安排一段专注时间。")
                     )
                 } else {
-                    sectionTitle("课程", count: courses.count)
                     ForEach(courses) { course in
                         CourseListCard(course: course, schedule: store.schedule)
                     }
                 }
+            } header: {
+                sectionTitle("课程", count: courses.count)
+            }
 
-                sectionTitle("待办与备忘", count: todayTasks.count)
+            Section {
                 if todayTasks.isEmpty {
                     Button {
                         showingTaskEditor = true
                     } label: {
-                        Label("添加今天的备忘", systemImage: "plus.circle.fill")
+                        Label("添加今天的备忘", systemImage: "plus.circle")
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding()
-                            .background(.quaternary, in: RoundedRectangle(cornerRadius: 18))
+                            .padding(.vertical, 6)
                     }
-                    .buttonStyle(.plain)
                 } else {
                     ForEach(todayTasks) { task in
                         TaskRow(task: task)
                     }
                 }
+            } header: {
+                sectionTitle("待办与备忘", count: todayTasks.count)
             }
-            .padding()
         }
-        .background(Color(uiColor: .systemGroupedBackground))
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .background(AppTheme.background)
         .navigationTitle("今天")
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
@@ -85,17 +93,33 @@ struct TodayView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            Text(Date.now.formatted(.dateTime.month().day().weekday(.wide)))
-                .font(.title2.bold())
-            if let week = ScheduleEngine.teachingWeek(on: Date(), schedule: store.schedule) {
-                Text("\(store.schedule.name) · 第 \(week) 周")
-                    .foregroundStyle(.secondary)
-            } else {
-                Text(store.schedule.name)
-                    .foregroundStyle(.secondary)
+        HStack(spacing: 18) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(Date.now.formatted(.dateTime.month().day().weekday(.wide)))
+                    .font(.title2.weight(.bold))
+                if let week = ScheduleEngine.teachingWeek(on: Date(), schedule: store.schedule) {
+                    Text("\(store.schedule.name) · 第 \(week) 周")
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(store.schedule.name)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer(minLength: 8)
+            VStack(spacing: 0) {
+                Text(Date.now.formatted(.dateTime.day()))
+                    .font(.title2.weight(.bold))
+                Text(Date.now.formatted(.dateTime.month(.abbreviated)).uppercased())
+                    .font(.caption2.monospaced().weight(.semibold))
+            }
+            .foregroundStyle(AppTheme.accent)
+            .frame(width: 54, height: 58)
+            .overlay {
+                RoundedRectangle(cornerRadius: AppTheme.rowCorner)
+                    .stroke(AppTheme.accent, lineWidth: 1)
             }
         }
+        .padding(.vertical, 2)
     }
 
     private func sectionTitle(_ title: String, count: Int) -> some View {
@@ -113,11 +137,11 @@ struct CourseListCard: View {
 
     var body: some View {
         HStack(spacing: 13) {
-            RoundedRectangle(cornerRadius: 4)
+            RoundedRectangle(cornerRadius: 2)
                 .fill(Color(hex: course.colorHex))
-                .frame(width: 5)
+                .frame(width: 4, height: 40)
             VStack(alignment: .leading, spacing: 5) {
-                Text(course.title).font(.headline)
+                Text(course.title).font(.body.weight(.semibold))
                 Text(ScheduleEngine.periodLabel(for: course, schedule: schedule))
                     .font(.subheadline)
                 Label("\(course.campus) · \(course.room)", systemImage: "mappin.and.ellipse")
@@ -127,8 +151,7 @@ struct CourseListCard: View {
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding()
-        .background(.background, in: RoundedRectangle(cornerRadius: 18))
+        .padding(.vertical, 5)
     }
 }
 
@@ -156,7 +179,7 @@ struct TaskRow: View {
             Spacer()
             Image(systemName: task.kind.symbol).foregroundStyle(.secondary)
         }
-        .padding()
-        .background(.background, in: RoundedRectangle(cornerRadius: 16))
+        .padding(.vertical, 5)
     }
 }
+
